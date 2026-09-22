@@ -1,0 +1,682 @@
+-- Script Path: game:GetService("StarterPlayer").StarterCharacterScripts.Local.RunningSystem
+-- Took 0.03s to decompile.
+-- Executor: Madium (2.0.0)
+
+local LocalPlayer = game.Players.LocalPlayer
+local Character = LocalPlayer.Character
+task.wait(0.1)
+
+if Character:FindFirstChild("MenuGuy") then
+    script:Destroy()
+
+    return
+end
+
+local Humanoid = Character:WaitForChild("Humanoid")
+local MobileGui = script:WaitForChild("MobileGui")
+local Button = MobileGui:WaitForChild("Button")
+local StaminaUI = script:WaitForChild("StaminaUI")
+local Stamina = StaminaUI:WaitForChild("MainFrame"):WaitForChild("Stamina")
+local Health = StaminaUI:WaitForChild("MainFrame"):WaitForChild("Health")
+local Viewport = StaminaUI:WaitForChild("MainFrame"):WaitForChild("CanvasGroup"):WaitForChild(
+    "viewport"
+)
+local Stamina_1 = script:WaitForChild("Stamina")
+local v6 = "Gamemodes"
+local v7 = game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild(v6)
+local CurrentCamera = workspace.CurrentCamera
+v6 = false
+local v9 = true
+local v10 = 0
+local t = {
+    RunSpeed = 30.2,
+    WalkSpeed = 14.5,
+    CustomRunningAnimation = nil,
+    RunKeybind = Enum.KeyCode.LeftShift,
+    RunConsoleKeybind = Enum.KeyCode.ButtonL2,
+    CustomRunningSettings = {
+        CustomRunSettingsEnabled = true,
+        AnimationStartSpeed = 0.3,
+        AnimationEndSpeed = 0.5
+    },
+    FOV = { FOVEnabled = false, FOVIncrease = 80, FOVDecrease = 70 },
+    Mobile = { MobileButtonEnabled = true, Hold = false, PCEnabled = false },
+    Stamina = {
+        StaminaEnabled = true,
+        StaminaMax = 100,
+        CurrentStamina = 120
+,
+        StaminaDecrease = 0.0,
+        StaminaIncrease = 0.089
+    },
+    CrouchingVariable = true,
+    Credits = true
+}
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+Character.Archivable = true
+local v12 = Character:Clone()
+
+for _, val in pairs(v12:GetDescendants()) do
+    if val:IsA("BaseScript") then
+        val:Destroy()
+    end
+end
+
+if LocalPlayer.DisplayName and LocalPlayer.DisplayName ~= LocalPlayer.Name then
+    StaminaUI:WaitForChild("MainFrame"):WaitForChild("Username").Text = "<b>" .. LocalPlayer.DisplayName .. "</b> (@" .. LocalPlayer.Name .. ")"
+else
+    StaminaUI:WaitForChild("MainFrame"):WaitForChild("Username").Text = "<b>" .. LocalPlayer.Name .. "</b>"
+end
+
+v12.Parent = Viewport.WorldModel
+v12:PivotTo(CFrame.new(-733.75, 2.97, 5.495))
+local v23
+
+if t.CustomRunningAnimation then
+    v23 = Instance.new("Animation", script)
+
+    if string.find(t.CustomRunningAnimation, "rbxassetid://") then
+        v23.AnimationId = t.CustomRunningAnimation
+    else
+        v23.AnimationId = "rbxassetid://" .. t.CustomRunningAnimation
+    end
+else
+    v23 = script:WaitForChild("Run")
+end
+
+local v25 = Humanoid:LoadAnimation(v23)
+v25.Priority = Enum.AnimationPriority.Movement
+
+if v23.AnimationId == "rbxassetid://85517188820328" then
+    v25:AdjustSpeed(1.3)
+end
+
+local v26 = 0
+Humanoid.HealthChanged:Connect(function(health) -- line: 115
+    -- upvalues:
+    --  [1] v26 (ref)
+
+    if health >= 80 then
+        v26 = 0
+    end
+
+    if health < 80 then
+        v26 = 3
+    end
+
+    if health < 50 then
+        v26 = 5.5
+    end
+
+    if health < 20 then
+        v26 = 9
+    end
+end)
+game:GetService("RunService").Stepped:Connect(function() -- line: 130
+    -- upvalues:
+    --  [1] Character (copy)
+
+    if Character:FindFirstChild("HumanoidRootPart") then
+        Character:FindFirstChild("HumanoidRootPart").CanCollide = true
+    end
+end)
+Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function() -- line: 132
+    -- upvalues:
+    --  [1] Humanoid (copy)
+    --  [2] v9 (ref)
+    --  [3] v6 (ref)
+    --  [4] t (copy)
+    --  [5] v25 (copy)
+    --  [6] TweenService (copy)
+    --  [7] CurrentCamera (copy)
+
+    if Humanoid.WalkSpeed <= script:WaitForChild("WalkSpeed").Value - 1 then
+        v9 = false
+        v6 = false
+
+        if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationEndSpeed then
+            v25:Stop(t.CustomRunningSettings.AnimationEndSpeed)
+        else
+            v25:Stop()
+        end
+
+        if t.FOV.FOVEnabled then
+            TweenService:Create(
+                CurrentCamera,
+                TweenInfo.new(0.35),
+                { FieldOfView = t.FOV.FOVDecrease }
+            ):Play()
+
+            return
+        end
+    elseif t.Stamina.StaminaEnabled and t.Stamina.CurrentStamina >= 30 then
+        v9 = true
+    end
+end)
+script:WaitForChild("RunSpeed"):GetPropertyChangedSignal("Value"):Connect(function() -- line: 153
+    -- upvalues:
+    --  [1] v6 (ref)
+    --  [2] Humanoid (copy)
+
+    if v6 then
+        Humanoid.WalkSpeed = script:WaitForChild("RunSpeed").Value
+
+        return
+    end
+
+    Humanoid.WalkSpeed = script:WaitForChild("WalkSpeed").Value
+end)
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent) -- line: 161
+    -- upvalues:
+    --  [1] Character (copy)
+    --  [2] t (copy)
+    --  [3] v25 (copy)
+    --  [4] v9 (ref)
+    --  [5] v6 (ref)
+    --  [6] Humanoid (copy)
+    --  [7] v26 (ref)
+    --  [8] TweenService (copy)
+    --  [9] CurrentCamera (copy)
+    --  [10] Button (copy)
+
+    if gameProcessedEvent then
+        return
+    end
+
+    if Character:FindFirstChild("Crouching") and t.CrouchingVariable then
+        return
+    end
+
+    if input.KeyCode == t.RunKeybind and v25 and v9 then
+        v6 = true
+        Humanoid.WalkSpeed = script:WaitForChild("RunSpeed").Value - v26
+
+        if t.FOV.FOVEnabled then
+            TweenService:Create(
+                CurrentCamera,
+                TweenInfo.new(0.35),
+                { FieldOfView = t.FOV.FOVIncrease }
+            ):Play()
+        end
+
+        Button.Text = "Walk"
+    end
+
+    if input.KeyCode == t.RunConsoleKeybind and v25 and v9 then
+        v6 = true
+        Humanoid.WalkSpeed = script:WaitForChild("RunSpeed").Value - v26
+
+        if t.FOV.FOVEnabled then
+            TweenService:Create(
+                CurrentCamera,
+                TweenInfo.new(0.35),
+                { FieldOfView = t.FOV.FOVIncrease }
+            ):Play()
+        end
+
+        Button.Text = "Walk"
+    end
+end)
+UserInputService.InputEnded:Connect(function(arg4, _) -- line: 186
+    -- upvalues:
+    --  [1] t (copy)
+    --  [2] v25 (copy)
+    --  [3] v9 (ref)
+    --  [4] v6 (ref)
+    --  [5] TweenService (copy)
+    --  [6] CurrentCamera (copy)
+    --  [7] Button (copy)
+    --  [8] Character (copy)
+    --  [9] Humanoid (copy)
+    --  [10] v26 (ref)
+
+    if arg4.KeyCode == t.RunKeybind and v25 and v9 then
+        v6 = false
+
+        if v25.IsPlaying then
+            if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationEndSpeed then
+                v25:Stop(t.CustomRunningSettings.AnimationEndSpeed)
+            else
+                v25:Stop()
+            end
+        end
+
+        if t.FOV.FOVEnabled then
+            TweenService:Create(
+                CurrentCamera,
+                TweenInfo.new(0.35),
+                { FieldOfView = t.FOV.FOVDecrease }
+            ):Play()
+        end
+
+        Button.Text = "Run"
+
+        if Character:FindFirstChild("Crouching") and t.CrouchingVariable then
+            return
+        end
+
+        Humanoid.WalkSpeed = script:WaitForChild("WalkSpeed").Value - v26
+    end
+
+    if arg4.KeyCode == t.RunConsoleKeybind and v25 and v9 then
+        v6 = false
+
+        if v25.IsPlaying then
+            if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationEndSpeed then
+                v25:Stop(t.CustomRunningSettings.AnimationEndSpeed)
+            else
+                v25:Stop()
+            end
+        end
+
+        if t.FOV.FOVEnabled then
+            TweenService:Create(
+                CurrentCamera,
+                TweenInfo.new(0.35),
+                { FieldOfView = t.FOV.FOVDecrease }
+            ):Play()
+        end
+
+        Button.Text = "Run"
+
+        if Character:FindFirstChild("Crouching") and t.CrouchingVariable then
+            return
+        end
+
+        Humanoid.WalkSpeed = script:WaitForChild("WalkSpeed").Value - v26
+    end
+end)
+Humanoid.Running:Connect(function(speed) -- line: 225
+    -- upvalues:
+    --  [1] v6 (ref)
+    --  [2] v10 (ref)
+    --  [3] v25 (copy)
+    --  [4] t (copy)
+
+    if v6 then
+        v10 = speed
+
+        if speed <= 4 and v25.IsPlaying then
+            if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationEndSpeed then
+                v25:Stop(t.CustomRunningSettings.AnimationEndSpeed)
+            else
+                v25:Stop()
+            end
+        end
+
+        if speed >= 4 and not v25.IsPlaying then
+            if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationStartSpeed then
+                v25:Play(t.CustomRunningSettings.AnimationStartSpeed)
+
+                return
+            end
+
+            v25:Play()
+        end
+    end
+end)
+Humanoid.StateChanged:Connect(function(_, arg8) -- line: 249
+    -- upvalues:
+    --  [1] v6 (ref)
+    --  [2] v25 (copy)
+
+    if (arg8 == Enum.HumanoidStateType.Jumping or arg8 == Enum.HumanoidStateType.Freefall) and v6 and v25.IsPlaying then
+        v25:Stop()
+    end
+end)
+Character.ChildAdded:Connect(function(child) -- line: 259
+    -- upvalues:
+    --  [1] t (copy)
+    --  [2] Humanoid (copy)
+    --  [3] v26 (ref)
+    --  [4] v9 (ref)
+    --  [5] v6 (ref)
+    --  [6] v25 (copy)
+
+    if child:IsA("BoolValue") and child.Name == "Crouching" and t.CrouchingVariable then
+        Humanoid.WalkSpeed = script:WaitForChild("WalkSpeed").Value - v26
+        v9 = false
+        v6 = false
+
+        if v25.IsPlaying then
+            v25:Stop()
+        end
+    end
+end)
+Character.ChildRemoved:Connect(function(child_1) -- line: 270
+    -- upvalues:
+    --  [1] t (copy)
+    --  [2] v9 (ref)
+
+    if child_1:IsA("BoolValue") and child_1.Name == "Crouching" and t.CrouchingVariable then
+        v9 = true
+    end
+end)
+Humanoid.StateChanged:Connect(function(_, arg12) -- line: 276
+    -- upvalues:
+    --  [1] t (copy)
+
+    if arg12 == Enum.HumanoidStateType.Jumping then
+        local Stamina_2 = t.Stamina
+        Stamina_2.CurrentStamina -= 15
+    end
+end)
+Stamina_1.OnClientEvent:Connect(function(arg13, arg14) -- line: 282
+    -- upvalues:
+    --  [1] t (copy)
+
+    if arg13 == "set" then
+        t.Stamina.CurrentStamina = arg14
+
+        return
+    end
+
+    if arg13 == "subtract" then
+        if arg14 < t.Stamina.CurrentStamina then
+            local Stamina_3 = t.Stamina
+            Stamina_3.CurrentStamina -= arg14
+
+            return
+        end
+    elseif arg13 == "add" then
+        local Stamina_4 = t.Stamina
+        Stamina_4.CurrentStamina += arg14
+
+        if t.Stamina.CurrentStamina >= t.Stamina.StaminaMax then
+            t.Stamina.CurrentStamina = t.Stamina.StaminaMax
+
+            return
+        end
+    elseif arg13 == "setMax" then
+        if t.Stamina.CurrentStamina >= t.Stamina.StaminaMax then
+            t.Stamina.CurrentStamina = arg14
+        end
+
+        t.Stamina.StaminaMax = arg14
+    end
+end)
+
+function RunButton() -- line: 303
+    -- upvalues:
+    --  [1] MobileGui (copy)
+    --  [2] LocalPlayer (copy)
+    --  [3] t (copy)
+    --  [4] Button (copy)
+    --  [5] v25 (copy)
+    --  [6] v9 (ref)
+    --  [7] v6 (ref)
+    --  [8] Humanoid (copy)
+    --  [9] v26 (ref)
+    --  [10] TweenService (copy)
+    --  [11] CurrentCamera (copy)
+
+    MobileGui.Parent = LocalPlayer.PlayerGui
+    MobileGui.Enabled = true
+
+    if t.Mobile.Hold then
+        Button.MouseButton1Down:Connect(function() -- line: 307
+            -- upvalues:
+            --  [1] v25 (ref)
+            --  [2] v9 (ref)
+            --  [3] v6 (ref)
+            --  [4] Humanoid (ref)
+            --  [5] v26 (ref)
+            --  [6] t (ref)
+            --  [7] TweenService (ref)
+            --  [8] CurrentCamera (ref)
+            --  [9] Button (ref)
+
+            if v25 and v9 and not v6 then
+                v6 = true
+                Humanoid.WalkSpeed = script:WaitForChild("RunSpeed").Value - v26
+
+                if t.FOV.FOVEnabled then
+                    TweenService:Create(
+                        CurrentCamera,
+                        TweenInfo.new(0.35),
+                        { FieldOfView = t.FOV.FOVIncrease }
+                    ):Play()
+                end
+
+                Button.Text = "Running"
+            end
+        end)
+        Button.MouseButton1Up:Connect(function() -- line: 317
+            -- upvalues:
+            --  [1] v25 (ref)
+            --  [2] v9 (ref)
+            --  [3] v6 (ref)
+            --  [4] t (ref)
+            --  [5] TweenService (ref)
+            --  [6] CurrentCamera (ref)
+            --  [7] Humanoid (ref)
+            --  [8] v26 (ref)
+            --  [9] Button (ref)
+
+            if v25 and v9 and v6 then
+                v6 = false
+
+                if v25.IsPlaying then
+                    if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationEndSpeed then
+                        v25:Stop(t.CustomRunningSettings.AnimationEndSpeed)
+                    else
+                        v25:Stop()
+                    end
+                end
+
+                if t.FOV.FOVEnabled then
+                    TweenService:Create(
+                        CurrentCamera,
+                        TweenInfo.new(0.35),
+                        { FieldOfView = t.FOV.FOVDecrease }
+                    ):Play()
+                end
+
+                Humanoid.WalkSpeed = script:WaitForChild("WalkSpeed").Value - v26
+                Button.Text = "Run"
+            end
+        end)
+
+        return
+    end
+
+    Button.MouseButton1Click:Connect(function() -- line: 335
+        -- upvalues:
+        --  [1] v25 (ref)
+        --  [2] v9 (ref)
+        --  [3] v6 (ref)
+        --  [4] Humanoid (ref)
+        --  [5] v26 (ref)
+        --  [6] t (ref)
+        --  [7] TweenService (ref)
+        --  [8] CurrentCamera (ref)
+        --  [9] Button (ref)
+
+        if v25 and v9 then
+            if not v6 then
+                v6 = true
+                Humanoid.WalkSpeed = script:WaitForChild("RunSpeed").Value - v26
+
+                if t.FOV.FOVEnabled then
+                    TweenService:Create(
+                        CurrentCamera,
+                        TweenInfo.new(0.35),
+                        { FieldOfView = t.FOV.FOVIncrease }
+                    ):Play()
+                end
+
+                Button.Text = "Walk"
+
+                return
+            end
+
+            v6 = false
+
+            if v25.IsPlaying then
+                if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationEndSpeed then
+                    v25:Stop(t.CustomRunningSettings.AnimationEndSpeed)
+                else
+                    v25:Stop()
+                end
+            end
+
+            if t.FOV.FOVEnabled then
+                TweenService:Create(
+                    CurrentCamera,
+                    TweenInfo.new(0.35),
+                    { FieldOfView = t.FOV.FOVDecrease }
+                ):Play()
+            end
+
+            Humanoid.WalkSpeed = script:WaitForChild("WalkSpeed").Value - v26
+            Button.Text = "Run"
+        end
+    end)
+end
+
+if t.Mobile.MobileButtonEnabled then
+    if UserInputService.TouchEnabled and not t.Mobile.PCEnabled then
+        RunButton()
+    end
+
+    if t.Mobile.PCEnabled and not UserInputService.TouchEnabled then
+        RunButton()
+    end
+end
+
+task.spawn(function() -- line: 376
+    -- upvalues:
+    --  [1] Humanoid (copy)
+
+    while true do
+        if not task.wait(0.5) then
+            break
+        end
+
+        if Humanoid.WalkSpeed >= 101 then
+            Humanoid.Health = 0
+        end
+
+        local v57 = script.GetServerSpeed:InvokeServer()
+
+        if not v57 then
+            continue
+        end
+
+        script.RunSpeed.Value = v57[2]
+        script.WalkSpeed.Value = v57[1]
+    end
+end)
+
+if t.Stamina.StaminaEnabled then
+    StaminaUI.Parent = LocalPlayer.PlayerGui
+    StaminaUI.Enabled = true
+    local _
+
+    while true do
+        if not wait() then
+            break
+        end
+
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+        StaminaUI:WaitForChild("MainFrame"):WaitForChild("HPCounter").Text = tostring(
+            (math.floor(Humanoid.Health))
+        )
+        local StaminaCounter = StaminaUI:WaitForChild("MainFrame"):WaitForChild("StaminaCounter")
+        StaminaCounter.Text = if t.Stamina.CurrentStamina <= 0 then "REST" else tostring(
+            (math.floor(t.Stamina.CurrentStamina))
+        )
+        TweenService:Create(
+            Stamina:WaitForChild("Bar"),
+            TweenInfo.new(0.2),
+            { Size = UDim2.new(t.Stamina.CurrentStamina / t.Stamina.StaminaMax, 0, 1, 0) }
+        ):Play()
+        TweenService:Create(
+            Health:WaitForChild("Bar"),
+            TweenInfo.new(0.2),
+            { Size = UDim2.new(Humanoid.Health / Humanoid.MaxHealth, 0, 1, 0) }
+        ):Play()
+        local Velocity = Humanoid.RootPart.Velocity
+        v25:AdjustSpeed(Vector3.new(Velocity.X, 0, Velocity.Z).Magnitude / 28.5)
+        local _ = UDim2.new(Humanoid.Health / Humanoid.MaxHealth, 0, 1, 0)
+
+        if v7.Heavenly.Value == true then
+            t.Stamina.CurrentStamina = t.Stamina.StaminaMax
+        end
+
+        if t.Stamina.CurrentStamina <= 0.3 then
+            v9 = false
+            v6 = false
+
+            if t.CustomRunningSettings.CustomRunSettingsEnabled and t.CustomRunningSettings.AnimationEndSpeed then
+                v25:Stop(t.CustomRunningSettings.AnimationEndSpeed)
+            else
+                v25:Stop()
+            end
+
+            if t.FOV.FOVEnabled then
+                TweenService:Create(
+                    CurrentCamera,
+                    TweenInfo.new(0.35),
+                    { FieldOfView = t.FOV.FOVDecrease }
+                ):Play()
+            end
+
+            Humanoid.WalkSpeed = script:WaitForChild("WalkSpeed").Value - v26
+            Humanoid.JumpPower = 0
+            Stamina:WaitForChild("Bar").BackgroundColor3 = Color3.fromRGB(198, 93, 95)
+        end
+
+        local _ = t.FOV.FOVDecrease
+
+        if t.Stamina.CurrentStamina >= 12 then
+            v9 = true
+            Humanoid.JumpPower = 40
+            Stamina:WaitForChild("Bar").BackgroundColor3 = Color3.fromRGB(109, 144, 198)
+        end
+
+        if v6 then
+            if v7.NoLungs.Value then
+                Humanoid.Health = 0
+            end
+
+            if v10 >= 4 and Humanoid.MoveDirection.Magnitude >= 0.5 then
+                local Stamina_5 = t.Stamina
+                local v63 = v7.HardMode.Value and t.Stamina.StaminaDecrease * 2.25 or t.Stamina.StaminaDecrease
+                Stamina_5.CurrentStamina -= v63
+            elseif not (t.Stamina.CurrentStamina >= t.Stamina.StaminaMax) then
+                local Stamina_6 = t.Stamina
+                Stamina_6.CurrentStamina += t.Stamina.StaminaIncrease
+            end
+        else
+            if not (t.Stamina.CurrentStamina >= t.Stamina.StaminaMax) then
+                local Stamina_7 = t.Stamina
+                Stamina_7.CurrentStamina += t.Stamina.StaminaIncrease
+            end
+
+            if Humanoid.MoveDirection.Magnitude <= 0.2 and v7.BasicsInEducation.Value and not (t.Stamina.CurrentStamina >= t.Stamina.StaminaMax) then
+                local Stamina_8 = t.Stamina
+                Stamina_8.CurrentStamina += 2
+            end
+        end
+
+        if Character:FindFirstChild("ShieldPack") then
+            StaminaUI.MainFrame.ShieldPack.Visible = true
+            local Durability = Character.ShieldPack:GetAttribute("Durability")
+
+            if not Durability then
+                continue
+            end
+
+            TweenService:Create(
+                StaminaUI.MainFrame.ShieldPack.Bar,
+                TweenInfo.new(1),
+                { Size = UDim2.new(Durability / 135, 0, 1, 0) }
+            ):Play()
+            continue
+        end
+
+        StaminaUI.MainFrame.ShieldPack.Visible = false
+    end
+end
