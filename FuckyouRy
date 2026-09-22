@@ -44,8 +44,7 @@ local t = {
     Stamina = {
         StaminaEnabled = true,
         StaminaMax = 100,
-        CurrentStamina = 120
-,
+        CurrentStamina = 120,
         StaminaDecrease = 0.0,
         StaminaIncrease = 0.089
     },
